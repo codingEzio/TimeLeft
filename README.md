@@ -53,7 +53,7 @@ Requires Deno with `deno bundle` support. Run `deno task build`, then
 It requires an existing workspace runtime and registry entry; it does not allocate
 ports. Run `deno run -A scripts/service.ts --prepare` to generate ignored local
 configuration, or `--install` to install a new LaunchAgent after checking the
-registry. Existing LaunchAgents are never overwritten. The registered port is
+registry. Existing generated files, symlinks and LaunchAgents are never overwritten. The registered port is
 used without fallback. `TIMELEFT_WORKSPACE` selects the workspace root (default:
 parent directory); `TIMELEFT_PROJECT` selects the registry project (default:
 `X-TimeLeft`); `TIMELEFT_SERVICE_LABEL` sets the LaunchAgent label (default:

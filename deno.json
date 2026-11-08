@@ -1,7 +1,7 @@
 {
   "tasks": {
     "build": "deno run -A scripts/build.ts",
-    "check": "deno check src/main.ts scripts/build.ts scripts/serve.ts && deno check scripts/service.ts && deno test tests",
+    "check": "deno check src/main.ts scripts/build.ts scripts/serve.ts && deno check scripts/service.ts && deno test -A tests",
     "preview": "deno run --allow-net --allow-read --allow-env=TIMELEFT_PORT scripts/serve.ts --loopback"
   },
   "compilerOptions": { "lib": ["dom", "dom.iterable", "deno.ns", "esnext"] }
