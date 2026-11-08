@@ -47,6 +47,21 @@ Requires Deno with `deno bundle` support. Run `deno task build`, then
 `deno task preview`; the preview binds loopback and prints its address. Run
 `deno task check` for model, locale and extracted calendar tests.
 
+## Optional macOS workspace service
+
+`scripts/service.ts` supports a Process Compose and LaunchAgent workspace setup.
+It requires an existing workspace runtime and registry entry; it does not allocate
+ports. Run `deno run -A scripts/service.ts --prepare` to generate ignored local
+configuration, or `--install` to install a new LaunchAgent after checking the
+registry. Existing LaunchAgents are never overwritten. The registered port is
+used without fallback. `TIMELEFT_WORKSPACE` selects the workspace root (default:
+parent directory); `TIMELEFT_PROJECT` selects the registry project (default:
+`X-TimeLeft`); `TIMELEFT_SERVICE_LABEL` sets the LaunchAgent label (default:
+`org.timeleft.web`); `TIMELEFT_PROCESS_COMPOSE` selects the executable (default:
+`/opt/homebrew/bin/process-compose`). Invalid identifiers or a missing runtime,
+manager, build, or matching registry entry cause an error. The generated files
+are local and ignored. Browser data remains tied to its original URL and port.
+
 ## License and provenance
 
 GPL-3.0-only. The time engine adapts code written by codingEzio; its calendar
