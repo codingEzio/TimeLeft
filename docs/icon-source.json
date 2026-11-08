@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "name": "TimeLeft",
+  "scope": "Original documentation mark, adopted from the existing original portfolio pixel geometry. No application, favicon or installed icon change.",
+  "copyright": "Copyright (c) 2026 codingEzio",
+  "license": "project LICENSE (unchanged GPL)",
+  "licenseFile": "LICENSE",
+  "geometry": [
+    "011111110",
+    "010000010",
+    "001000100",
+    "000101000",
+    "000010000",
+    "000101000",
+    "001000100",
+    "010000010",
+    "011111110"
+  ],
+  "background": "#d7c4ef",
+  "foreground": "#493464",
+  "svgSha256": "c61f02f2bba8ff167239df643935b8bba2852ce05fad89d17205a869747f9bfa",
+  "externalImagesOrFonts": false
+}

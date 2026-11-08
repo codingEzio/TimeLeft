@@ -1,0 +1,71 @@
+/* Shared geometry/type with retained theme-specific presentation. */
+.time-canvas-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  color: var(--ink);
+  background: var(--panel);
+  --time-rule: var(--line);
+  --time-live: var(--tone-accent);
+  --time-corner: 14;
+}
+.time-canvas-surface > canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.time-range-readout {
+  position: absolute;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: 2px;
+  font-size: var(--time-readout-size, 12px);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.time-range-name {
+  font-family: var(--font-ui);
+  min-width: 0;
+}
+:root .time-canvas-surface select.time-range-value {
+  --font-readable-weight: 600;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--time-readout-size, 13px);
+  font-weight: 600;
+  line-height: 1.2;
+  font-family: var(--font-numeric);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  cursor: pointer;
+}
+.time-range-value option {
+  color: var(--ink);
+  background: var(--paper);
+}
+:where(:root[data-tone="nothing"]) .time-range-value:focus-visible {
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+}
+
+:root[data-tone="nothing"] .time-range-name {
+  font-family: var(--font-ui);
+  letter-spacing: -.01em;
+}
+@media (prefers-contrast: more) {
+  .time-canvas-surface {
+    --time-rule: var(--ink);
+  }
+}
