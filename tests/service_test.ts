@@ -1,4 +1,4 @@
-Deno.test("service preparation refuses existing files and symlinks before writing", async () => {
+Deno.test("service preparation reuses identical files and refuses conflicts and symlinks", async () => {
   const temp = await Deno.makeTempDir({ prefix: "timeleft-service-test-" });
   const workspace = `${temp}/workspace`;
   const home = `${temp}/home`;
@@ -55,16 +55,46 @@ Deno.test("service preparation refuses existing files and symlinks before writin
       await Deno.readTextFile(compose),
       await Deno.readTextFile(plist),
     ];
-    assert(!(await run(good, "--prepare")).success, "repeat prepare succeeded");
+    const beforeStats = [await Deno.stat(compose), await Deno.stat(plist)];
+    assert((await run(good, "--prepare")).success, "identical prepare failed");
+    const afterStats = [await Deno.stat(compose), await Deno.stat(plist)];
     assert(
-      !(await run(good, "--install")).success,
-      "install overwrote existing files",
+      beforeStats.every((info, i) =>
+        info.ino === afterStats[i].ino &&
+        info.mtime?.getTime() === afterStats[i].mtime?.getTime()
+      ),
+      "identical files rewritten",
+    );
+    const installAfterPrepare = await run(good, "--install");
+    assert(
+      !installAfterPrepare.success &&
+        new TextDecoder().decode(installAfterPrepare.stderr).includes(
+          "registry entry is required",
+        ),
+      "install did not reach registry preflight after prepare",
     );
     assert(
       before[0] === await Deno.readTextFile(compose) &&
         before[1] === await Deno.readTextFile(plist),
-      "existing files changed",
+      "reused files changed",
     );
+    for (
+      const [path, other, otherContent] of [[compose, plist, before[1]], [
+        plist,
+        compose,
+        before[0],
+      ]]
+    ) {
+      const original = await Deno.readTextFile(path);
+      await Deno.writeTextFile(path, "conflict");
+      assert(!(await run(good, "--prepare")).success, "conflict accepted");
+      assert(
+        await Deno.readTextFile(path) === "conflict" &&
+          await Deno.readTextFile(other) === otherContent,
+        "conflict changed files",
+      );
+      await Deno.writeTextFile(path, original);
+    }
     for (const kind of ["parent", "runtime", "deploy", "compose", "plist"]) {
       const root = await fixture(kind);
       const outside = `${temp}/${kind}-outside`;

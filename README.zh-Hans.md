@@ -16,7 +16,7 @@
 
 ## 可选 macOS 工作区服务
 
-`scripts/service.ts` 需要现有工作区运行环境及登记项目，不会分配端口。用 `deno run -A scripts/service.ts --prepare` 生成本地设置；`--install` 检查登记后安装新 LaunchAgent，不覆盖现有生成文件、符号链接或 LaunchAgent。使用已登记端口，不自动切换。`TIMELEFT_WORKSPACE` 指定工作区根目录（默认上层）、`TIMELEFT_PROJECT` 指定登记名称（默认 `X-TimeLeft`）、`TIMELEFT_SERVICE_LABEL` 指定服务标签（默认 `org.timeleft.web`）、`TIMELEFT_PROCESS_COMPOSE` 指定执行文件（默认 `/opt/homebrew/bin/process-compose`）。名称无效或缺少运行环境、构建、管理程序、匹配登记时会报错。生成文件不纳入 Git；浏览器数据仍绑定原网址与端口。
+`scripts/service.ts` 需要现有工作区运行环境及登记项目，不会分配端口。用 `deno run -A scripts/service.ts --prepare` 生成本地设置；`--install` 检查登记后安装新 LaunchAgent，现有生成文件须逐字节相同才重用；不覆盖冲突文件、符号链接或 LaunchAgent。使用已登记端口，不自动切换。`TIMELEFT_WORKSPACE` 指定工作区根目录（默认上层）、`TIMELEFT_PROJECT` 指定登记名称（默认 `X-TimeLeft`）、`TIMELEFT_SERVICE_LABEL` 指定服务标签（默认 `org.timeleft.web`）、`TIMELEFT_PROCESS_COMPOSE` 指定执行文件（默认 `/opt/homebrew/bin/process-compose`）。名称无效或缺少运行环境、构建、管理程序、匹配登记时会报错。生成文件不纳入 Git；浏览器数据仍绑定原网址与端口。
 
 ## 界面示例
 

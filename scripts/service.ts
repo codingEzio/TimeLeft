@@ -75,6 +75,49 @@ async function requireAbsent(path: string) {
   }
   throw Error(`Refusing to overwrite ${path}`);
 }
+// Identical regular files may be reused, but are never opened for writing.
+async function reuseOrAbsent(path: string, content: string): Promise<boolean> {
+  let info: Deno.FileInfo;
+  try {
+    info = await Deno.lstat(path);
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) return false;
+    throw error;
+  }
+  if (!info.isFile || info.isSymlink) {
+    throw Error(`Unsafe existing file: ${path}`);
+  }
+  const file = await Deno.open(path, { read: true });
+  try {
+    const opened = await file.stat();
+    const expected = new TextEncoder().encode(content);
+    if (
+      opened.dev !== info.dev || opened.ino !== info.ino ||
+      opened.size !== expected.length
+    ) {
+      throw Error(`Conflicting existing file: ${path}`);
+    }
+    const actual = new Uint8Array(expected.length);
+    let offset = 0;
+    while (offset < actual.length) {
+      const count = await file.read(actual.subarray(offset));
+      if (count === null || count === 0) {
+        throw Error(`Conflicting existing file: ${path}`);
+      }
+      offset += count;
+    }
+    const after = await Deno.lstat(path);
+    if (
+      !after.isFile || after.isSymlink || after.dev !== info.dev ||
+      after.ino !== info.ino || actual.some((byte, i) => byte !== expected[i])
+    ) {
+      throw Error(`Conflicting existing file: ${path}`);
+    }
+    return true;
+  } finally {
+    file.close();
+  }
+}
 async function checkDirectory(path: string) {
   try {
     const info = await Deno.lstat(path);
@@ -88,8 +131,8 @@ async function checkDirectory(path: string) {
 await checkDirectory(join(root, "Local"));
 await checkDirectory(runtime);
 await checkDirectory(deploy);
-await requireAbsent(compose);
-await requireAbsent(plist);
+const reuseCompose = await reuseOrAbsent(compose, normalizedYaml);
+const reusePlist = await reuseOrAbsent(plist, document);
 
 // Validate the generated plist before creating any output files.
 const check = await new Deno.Command("/usr/bin/plutil", {
@@ -169,8 +212,14 @@ async function createFile(path: string, content: string) {
   }
 }
 try {
-  await createFile(compose, normalizedYaml);
-  await createFile(plist, document);
+  if (!reuseCompose) await createFile(compose, normalizedYaml);
+  if (!reusePlist) await createFile(plist, document);
+  if (
+    !await reuseOrAbsent(compose, normalizedYaml) ||
+    !await reuseOrAbsent(plist, document)
+  ) {
+    throw Error("Generated service configuration disappeared");
+  }
   if (!install) {
     console.log(`Prepared ${compose} and ${plist}`);
   } else {
